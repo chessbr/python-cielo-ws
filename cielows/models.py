@@ -9,22 +9,22 @@
 
 
 class CieloPaymenType(object):
-    CREDITCARD = "CreditCard"
+    CreditCard = "CreditCard"
 
 
 class CieloCardBrand(object):
-    VISA = "Visa"
-    MASTERCARD = "Mastercard"
-    AMEX = "Amex"
-    ELO = "Elo"
-    AURIA = "Auria"
+    Visa = "Visa"
+    Mastercard = "Mastercard"
+    Amex = "Amex"
+    Elo = "Elo"
+    Auria = "Auria"
     JCB = "JCB"
-    DINERS = "Diners"
-    DISCOVER = "Discover"
-    
+    Diners = "Diners"
+    Discover = "Discover"
+
 
 class CieloPaymentInterest(object):
-    BYMERCHANT = "ByMerchant"
+    ByMerchant = "ByMerchant"
     
 
 class CieloPaymentCurrency(object):
@@ -41,7 +41,7 @@ class CieloPaymentCurrency(object):
     VEB = "VEB"
     VEF = "VEF"
     GBP = "GBP"
-    
+
 
 class CieloJSONObject(object):
 
@@ -50,16 +50,29 @@ class CieloJSONObject(object):
     Cielo base object models must override this class,
     to be able to be instantiated from a valid Cielo JSON dictionary.
     '''
+
     _errors = []
 
-    @classmethod
-    def from_json(cls, cielo_json):
-        '''
-        Create a band new instance of this object
-        populating attributes with the given Cielo JSON data in ´cielo_json´ 
+    class Meta:
+        required = []
 
-        :param cielo_json: Cielo REST JSON as a dictionary
-        :type cielo_json: dict  
+    def __init__(self, json):
+        '''
+        Initialize the instance populating attributes 
+        with the given Cielo JSON data from ´json´
+
+        :param json: Cielo REST JSON as a dictionary
+        :type json: dict  
+        '''
+        self.from_json(json)
+        self.validate()
+
+    def from_json(cls, json):
+        '''
+        Populates the attributes with the given Cielo JSON data
+
+        :param json: Cielo REST JSON as a dictionary
+        :type json: dict  
         '''
         raise NotImplementedError("Implement this method.")
 
@@ -89,112 +102,91 @@ class CieloJSONObject(object):
 
 
 class CieloCustomerAddress(CieloJSONObject):
-    Street = ''
-    Number = ''
-    Complement = ''
-    ZipCode = ''
-    City = ''
-    State = ''
-    Country = ''
+    street = ''
+    number = ''
+    complement = ''
+    zip_code = ''
+    city = ''
+    state = ''
+    country = ''
 
 
 class CieloCustomer(CieloJSONObject):
-    Name = ''
-    Email = ''
-    Birthdate = ''
-    Identity = ''
-    IdentityType = None
-    Address = None
-    DeliveryAddress = None
-
-    class Meta:
-        required = ['Name']
+    name = ''
+    email = ''
+    birth_date = ''
+    identity = ''
+    identity_type = None
+    address = None
+    delivery_address = None
 
 
 class CieloRequestCreditCard(CieloJSONObject):
-    CardNumber = ''
-    Holder = ''
-    ExpirationDate = ''
-    SecurityCode = ''
-    Brand = None
-    SaveCard = False
-
-    class Meta:
-        required = ['CardNumber', 'Holder', 'ExpirationDate', 'SecurityCode', 'Brand']
+    card_number = ''
+    holder = ''
+    expiration_date = ''
+    security_code = ''
+    brand = None
+    save_card = False
 
 
 class CieloResponseCreditCard(CieloJSONObject):
-    CardNumber = ''
-    Holder = ''
-    ExpirationDate = ''
-    SecurityCode = ''
-    Brand = None
-    SaveCard = False
-    CardToken = ''
+    card_number = ''
+    holder = ''
+    expiration_date = ''
+    security_code = ''
+    brand = None
+    save_card = False
+    card_token = ''
 
 
 class CieloResponsePaymentLink(CieloJSONObject):
-    Method = ''
-    Rel = ''
-    Href = ''
+    method = ''
+    rel = ''
+    href = ''
 
 
 class CieloRequestPayment(CieloJSONObject):
-    Type = None
-    CreditCard = None
-    Amount = 0
-    Currency = ''
-    Country = ''
-    Provider = ''
-    ServiceTaxAmount = 0
-    Installments = 0
-    Interest = None
-    Capture = False
-    Authenticate = False
-    SoftDescriptor = ''
+    payment_type = None
+    credit_card = None
+    amount = 0
+    currency = ''
+    country = ''
+    provider = ''
+    service_tax_amount = 0
+    installments = 0
+    interest = None
+    capture = False
+    authenticate = False
+    soft_descriptor = ''
     
-    class Meta:
-        required = ['Type', 'CreditCard', 'Amount']
-
 
 class CieloResponsePayment(CieloJSONObject):
-    ServiceTaxAmount = 0
-    Installments = 0
-    Interest = ''
-    Capture = False
-    Authenticate = False
-    CreditCard = None
-    ProofOfSale = ''
-    Tid = ''
-    AuthorizationCode = ''
-    PaymentId = ''
-    Type = None
-    Currency = ''
-    Country = ''
-    ExtraDataCollection = []
-    Status = 0
-    ReturnCode = ''
-    ReturnMessage = ''
-    Links = []
-    Amount = 0
-    CapturedAmount = 0
+    service_tax_amount = 0
+    installments = 0
+    interest = ''
+    capture = False
+    authenticate = False
+    credit_card = None
+    proof_of_sale = ''
+    tid = ''
+    authorization_code = ''
+    payment_id = ''
+    payment_type = None
+    currency = ''
+    country = ''
+    extra_data_collection = []
+    status = 0
+    return_code = ''
+    return_message = ''
+    links = []
+    amount = 0
+    captured_amount = 0
 
-
-class CieloRequest(CieloJSONObject):
-    MerchantOrderId = ''
-    Customer = None
-    Payment = None
-
-    @classmethod
-    def from_json(cls, cielo_json):
-        pass
-
-    class Meta:
-        required = ['MerchantOrderId', 'Customer', 'Payment']
 
 
 class CieloResponse(CieloJSONObject):
-    MerchantOrderId = ''
-    Customer = None
-    Payment = None
+    merchant_order_id = ''
+    customer = None
+    payment = None
 
