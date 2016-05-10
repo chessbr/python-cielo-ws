@@ -10,7 +10,7 @@
 import setuptools
 
 NAME = 'python-cielo-ws'
-VERSION = '1.0.0'
+VERSION = '0.9.0.dev'
 DESCRIPTION = 'Python integration for Cielo Webservice 3.0'
 AUTHOR = 'Rockho Team'
 AUTHOR_EMAIL = 'rockho@rockho.com.br'

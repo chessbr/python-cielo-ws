@@ -11,15 +11,15 @@ Python integration for Cielo Webservice 3.0
 Supported Features
 ==================
 
-- [x] Simple & Complete transaction
+- [x] Simple & Complete transactions
 - [x] Authenticated transactions
 - [x] Capture transactions
 - [x] Cancel transactions
 - [x] Query simple & complete transactions
-- [] Antifraud
-- [] Card Token
-- [] Boleto
-- [] Recurrence
+- [ ] Antifraud transactions
+- [ ] Card Token transactions
+- [ ] Boleto transactions
+- [ ] Recurrence transactions
 
 
 Copyright
