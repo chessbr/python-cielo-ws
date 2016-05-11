@@ -17,6 +17,11 @@ AUTHOR_EMAIL = 'rockho@rockho.com.br'
 URL = 'http://www.rockho.com.br/'
 LICENSE = 'AGPL-3.0'
 
+REQUIRES = [
+    "requests",
+    "six"
+]
+
 if __name__ == '__main__':
     setuptools.setup(
         name=NAME,
@@ -27,5 +32,6 @@ if __name__ == '__main__':
         author_email=AUTHOR_EMAIL,
         license=LICENSE,
         packages=["cielows"],
+        install_requires=REQUIRES,
         include_package_data=True,
     )
