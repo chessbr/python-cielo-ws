@@ -459,3 +459,12 @@ def test_cielo_response():
     assert cielo_response.payment.return_message == CIELO_RESPONSE_COMPLETE["Payment"]["ReturnMessage"]
     assert cielo_response.payment.links == CIELO_RESPONSE_COMPLETE["Payment"]["Links"]
 
+
+def test_webservice():
+    MERCHANT_ID = '12345'
+    MERCHANT_KEY = '4567'
+    cielo_ws = CieloFactory.create_webservice(merchant_id=MERCHANT_ID, merchant_key=MERCHANT_KEY)
+
+    assert cielo_ws.merchant_id == MERCHANT_ID
+    assert cielo_ws.merchant_key == MERCHANT_KEY
+

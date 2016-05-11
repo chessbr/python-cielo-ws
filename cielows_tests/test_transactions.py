@@ -14,10 +14,13 @@ from cielows.constants import CieloCardBrand, CieloPaymentType,\
 
 
 def test_authorize_simple_transaction_success():
+
     '''
     Simple transaction authorization success
     '''
-    cielo_ws = CieloWS(MerchantId='1234', MerchantKey='4567')
+
+    cielo_ws = CieloFactory.create_webservice(merchant_id='1234', merchant_key='4567')
+
     cielo_customer = CieloFactory.create_customer(name="Jorge da Silva")
 
     cielo_cc = CieloFactory.create_request_credit_card(card_number='4916663711012443',
@@ -52,3 +55,4 @@ def test_authorize_simple_transaction_success():
     cielo_cancel_response = cielo_ws.cancel(payment_id=cielo_auth_response.payment.payment_id,
                                             amount=321312)
     assert cielo_cancel_response.status == CieloPaymentStatus.Voided
+
