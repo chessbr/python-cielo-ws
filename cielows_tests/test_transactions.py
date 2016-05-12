@@ -19,7 +19,9 @@ def test_authorize_simple_transaction_success():
     Simple transaction authorization success
     '''
 
-    cielo_ws = CieloFactory.create_webservice(merchant_id='1234', merchant_key='4567')
+    cielo_ws = CieloFactory.create_webservice(merchant_id='1234',
+                                              merchant_key='4567',
+                                              sandbox=True)
 
     cielo_customer = CieloFactory.create_customer(name="Jorge da Silva")
 

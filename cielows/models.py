@@ -132,5 +132,118 @@ class CieloResponse(CieloJSONObject):
 
 
 class CieloFactory(object):
-    pass
+
+    '''
+    Creates and configures Cielo objects
+    '''
+
+    @classmethod
+    def new_customer(name):
+        '''
+        Creates a new CieloCostumer object
+        '''
+
+        pass
+
+    @classmethod
+    def new_customer_from_cielo(cielo_data):
+        '''
+        Creates a new CieloCostumer object from Cielo JSON data
+        :param: cielo_data Cielo JSON data
+        :type: cielo_data dict
+        '''
+
+        pass
+
+    @classmethod
+    def new_customer_address():
+        '''
+        Creates a new CieloCustomerAddress object
+        '''
+
+        pass
+
+    @classmethod
+    def new_request_credit_card(params),
+        '''
+        Creates a new CieloRequestCreditCard object
+        '''
+
+        pass
+
+    @classmethod
+    def new_request_credit_card_from_cielo(cielo_data)
+        '''
+        Creates a new CieloRequestCreditCard object from Cielo JSON data
+        :param: cielo_data Cielo JSON data
+        :type: cielo_data dict
+        '''
+
+        pass
+
+    @classmethod
+    def new_response_credit_card():
+        '''
+        Creates a new CieloResponseCreditCard object
+        '''
+
+        pass
+
+    @classmethod
+    def new_response_credit_card_from_cielo(cielo_data):
+        '''
+        Creates a new CieloResponseCreditCard object from Cielo JSON data
+        :param: cielo_data Cielo JSON data
+        :type: cielo_data dict
+        '''
+
+        pass
+
+    @classmethod
+    def new_request_payment():
+        '''
+        Creates a new CieloRequestPayment object
+        '''
+
+        pass
+
+    @classmethod
+    def new_request_payment_from_cielo(CIELO_REQUEST_COMPLETE)
+        '''
+        Creates a new CieloRequestPayment object from Cielo JSON data
+        :param: cielo_data Cielo JSON data
+        :type: cielo_data dict
+        '''
+
+        pass
+
+    @classmethod
+    def new_response_payment(payment_type=TYPE,
+        '''
+        Creates a new CieloResponsePayment object
+        '''
+
+        pass
+
+    @classmethod
+    def new_response_payment_from_cielo(CIELO_RESPONSE_COMPLETE)
+        '''
+        Creates a new CieloResponsePayment object from Cielo JSON data
+        :param: cielo_data Cielo JSON data
+        :type: cielo_data dict
+        '''
+
+        pass
+
+    @classmethod
+    def new_request(ORDER_ID, cielo_customer, cielo_payment)
+        pass
+
+    @classmethod
+    def new_response(ORDER_ID, cielo_customer, cielo_payment)
+        pass
+
+    @classmethod
+    def new_webservice(merchant_id, merchant_key, sandbox=False)
+        pass
 
