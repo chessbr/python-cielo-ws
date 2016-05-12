@@ -8,23 +8,13 @@
 # LICENSE file in the root directory of this source tree.
 
 
-class CieloJSONObject(object):
+class CieloJSONParsableObject(object):
 
     '''
-    Cielo JSON compatible object model.
-    Cielo base object models must override this class,
-    to be able to be instantiated from a valid Cielo JSON dictionary.
+    Cielo JSON parsable object
+    This object has capabilities to
+    populate attributes from a Cielo JSON data
     '''
-
-    def __init__(self, json):
-        '''
-        Initialize the instance populating attributes
-        with the given Cielo JSON data from ´json´
-
-        :param json: Cielo REST JSON as a dictionary
-        :type json: dict
-        '''
-        self.from_json(json)
 
     def from_json(self, json):
         '''
@@ -35,100 +25,217 @@ class CieloJSONObject(object):
         '''
         raise NotImplementedError("Implement this method.")
 
-    def to_json(self):
-        '''
-        Returns this object as a JSON dictionary to be used on requests
-        '''
-        raise NotImplementedError("Implement this method.")
+
+class CieloCustomerAddress(object):
+    street = None
+    number = None
+    complement = None
+    zip_code = None
+    city = None
+    state = None
+    country = None
+
+    def __init__(self, street, number, complement, zip_code, state, country):
+        self.street = street
+        self.number = number
+        self.complement = complement
+        self.zip_code = zip_code
+        self.state = state
+        self.country = country
 
 
-class CieloCustomerAddress(CieloJSONObject):
-    street = ''
-    number = ''
-    complement = ''
-    zip_code = ''
-    city = ''
-    state = ''
-    country = ''
+class CieloRequestCustomer(object):
+    name = None
+    email = None
+    birth_date = None
+    address = None
+    delivery_address = None
+
+    def __init__(self, name, email, birth_date, address, delivery_address):
+        self.name = name
+        self.email = email
+        self.birth_date = birth_date
+        self.address = address
+        self.delivery_address = delivery_address
 
 
-class CieloCustomer(CieloJSONObject):
-    name = ''
-    email = ''
-    birth_date = ''
-    identity = ''
+class CieloResponseCustomer(CieloJSONParsableObject):
+    name = None
+    email = None
+    birth_date = None
+    identity = None
     identity_type = None
     address = None
     delivery_address = None
 
+    def __init__(self, cielo_data):
+        self.from_json(cielo_data)
 
-class CieloCreditCard(CieloJSONObject):
-    card_number = ''
-    holder = ''
-    expiration_date = ''
-    security_code = ''
+    def from_json(self, cielo_data):
+        pass
+
+
+class CieloRequestCreditCard(object):
+    card_number = None
+    holder = None
+    expiration_date = None
+    security_code = None
     brand = None
     save_card = False
 
+    def __init__(self,
+                 card_number, 
+                 holder,
+                 expiration_date,
+                 security_code,
+                 brand,
+                 save_card):
 
-class CieloResponseCreditCard(CieloJSONObject):
-    card_number = ''
-    holder = ''
-    expiration_date = ''
-    security_code = ''
+        self.card_number = card_number
+        self.holder = holder
+        self.expiration_date = expiration_date
+        self.security_code = security_code
+        self.brand = brand
+        self.save_card = save_card
+
+
+class CieloResponseCreditCard(CieloJSONParsableObject):
+    card_number = None
+    holder = None
+    expiration_date = None
+    security_code = None
     brand = None
     save_card = False
-    card_token = ''
+    card_token = None
+
+    def __init__(self, cielo_data):
+        self.from_json(cielo_data)
+
+    def from_json(self, cielo_data):
+        pass
 
 
-class CieloResponsePaymentLink(CieloJSONObject):
-    method = ''
-    rel = ''
-    href = ''
+class CieloPaymentLink(object):
+    method = None
+    rel = None
+    href = None
+
+    def __init__(self, method, rel, href):
+        self.method = method
+        self.rel = rel
+        self.href = href
 
 
-class CieloRequestPayment(CieloJSONObject):
-    payment_type = None
-    credit_card = None
+class CieloRequestPayment(object):
     amount = 0
-    currency = ''
-    country = ''
-    provider = ''
+    installments = 0
+    credit_card = None
+    payment_type = None
+    currency = None
+    country = None
+    provider = None
+    service_tax_amount = 0
+    interest = None
+    capture = False
+    authenticate = False
+    soft_descriptor = None
+
+    def __init__(self, 
+                 amount,
+                 installments,
+                 credit_card,
+                 payment_type,
+                 interest,
+                 capture,
+                 authenticate, 
+                 currency,
+                 country,
+                 provider,
+                 service_tax_amount,
+                 soft_descriptor):
+
+        self.amount = amount
+        self.installments = installments
+        self.credit_card = credit_card
+        self.payment_type = payment_type
+        self.intereset = interest
+        self.capture = capture
+        self.authenticate = authenticate
+        self.currency = currency
+        self.country = country
+        self.provider = provider
+        self.service_tax_amount = service_tax_amount
+        self.soft_descriptor = soft_descriptor
+
+
+class CieloResponsePayment(CieloJSONParsableObject):
     service_tax_amount = 0
     installments = 0
     interest = None
     capture = False
     authenticate = False
-    soft_descriptor = ''
-
-
-class CieloResponsePayment(CieloJSONObject):
-    service_tax_amount = 0
-    installments = 0
-    interest = ''
-    capture = False
-    authenticate = False
     credit_card = None
-    proof_of_sale = ''
-    tid = ''
-    authorization_code = ''
-    payment_id = ''
+    proof_of_sale = None
+    tid = None
+    authorization_code = None
+    payment_id = None
     payment_type = None
-    currency = ''
-    country = ''
+    currency = None
+    country = None
     extra_data_collection = []
-    status = 0
-    return_code = ''
-    return_message = ''
+    status = -1
+    return_code = None
+    return_message = None
     links = []
     amount = 0
     captured_amount = 0
 
+    def __init__(self, cielo_data):
+        self.from_json(cielo_data)
+    
+    def from_json(self, cielo_data):
+        pass
 
-class CieloResponse(CieloJSONObject):
-    merchant_order_id = ''
+class CieloPaymentsQueryResult(CieloJSONParsableObject):
+
+    class CieloPaymentQueryResult(object):
+        payment_id = None
+        received_date = None
+
+        def __init__(self, payment_id, received_date):
+            self.payment_id = payment_id
+            self.received_date = received_date
+
+
+    payments = []
+
+    def __init__(self, cielo_data):
+        self.from_json(cielo_data)
+    
+    def from_json(self, cielo_data):
+        pass
+
+
+class CieloRequest(object):
+    order_id = None
     customer = None
     payment = None
+
+    def __init__(self, order_id, customer, payment):
+        self.order_id = order_id
+        self.customer = curstomer
+        self.payment = payment
+
+class CieloResponse(CieloJSONParsableObject):
+    order_id = None
+    customer = None
+    payment = None
+
+    def __init__(self, cielo_data):
+        self.from_json(cielo_data)
+
+    def from_json(self, cielo_data):
+        pass
 
 
 class CieloFactory(object):
@@ -137,113 +244,144 @@ class CieloFactory(object):
     Creates and configures Cielo objects
     '''
 
-    @classmethod
-    def new_customer(name):
+    @staticmethod
+    def new_request_customer(name,
+                             email=None,
+                             birth_date=None,
+                             address=None,
+                             delivery_address=None):
         '''
-        Creates a new CieloCostumer object
+        Creates a new CieloRequestCostumer object
+
+        :type: name string
+        :type: email string|None
+        :param: birth_date customer birth date in format 'YYYY-MM-DD'
+        :type: birth_date string|None
+        :type: address CieloCustomerAddress|None
+        :type: delivery_address CieloCustomerAddress|None
         '''
 
         pass
 
-    @classmethod
-    def new_customer_from_cielo(cielo_data):
+    @staticmethod
+    def new_response_customer(cielo_data):
         '''
-        Creates a new CieloCostumer object from Cielo JSON data
-        :param: cielo_data Cielo JSON data
-        :type: cielo_data dict
+        Creates a new CieloResponseCostumer object
         '''
 
         pass
 
-    @classmethod
-    def new_customer_address():
+    @staticmethod
+    def new_customer_address(street=None,
+                             number=None,
+                             complement=None,
+                             zip_code=None,
+                             city=None,
+                             state=None,
+                             country=None):
         '''
         Creates a new CieloCustomerAddress object
         '''
 
         pass
 
-    @classmethod
-    def new_request_credit_card(params),
+    @staticmethod
+    def new_request_credit_card(card_number,
+                                security_code,
+                                expiration_date,
+                                brand,
+                                holder,
+                                save_card=False):
         '''
         Creates a new CieloRequestCreditCard object
+
+        :type: card_number string
+        :type: security_number string
+        :param expiration_date Expiration date in format MM/YYYY
+        :type: expiration_date string
+        :type: brand CieloCardBrand
+        :type: holder string
+        :type: save_card bool
         '''
 
         pass
 
-    @classmethod
-    def new_request_credit_card_from_cielo(cielo_data)
-        '''
-        Creates a new CieloRequestCreditCard object from Cielo JSON data
-        :param: cielo_data Cielo JSON data
-        :type: cielo_data dict
-        '''
-
-        pass
-
-    @classmethod
-    def new_response_credit_card():
+    @staticmethod
+    def new_response_credit_card(cielo_data):
         '''
         Creates a new CieloResponseCreditCard object
-        '''
 
-        pass
-
-    @classmethod
-    def new_response_credit_card_from_cielo(cielo_data):
-        '''
-        Creates a new CieloResponseCreditCard object from Cielo JSON data
         :param: cielo_data Cielo JSON data
-        :type: cielo_data dict
+        :type: cielo_data dict|None
         '''
 
         pass
 
-    @classmethod
-    def new_request_payment():
+    @staticmethod
+    def new_request_payment(amount,
+                            installments,
+                            credit_card,
+                            provider,
+                            payment_type=CieloPaymentType.CreditCard,
+                            currency=CieloCurrency.BRL,
+                            intereset=CieloPaymentInterest.ByMerchant,
+                            capture=False,
+                            authenticate=False
+                            service_tax_amount=0):
         '''
         Creates a new CieloRequestPayment object
+
         '''
 
         pass
 
-    @classmethod
-    def new_request_payment_from_cielo(CIELO_REQUEST_COMPLETE)
-        '''
-        Creates a new CieloRequestPayment object from Cielo JSON data
-        :param: cielo_data Cielo JSON data
-        :type: cielo_data dict
-        '''
-
-        pass
-
-    @classmethod
-    def new_response_payment(payment_type=TYPE,
+    @staticmethod
+    def new_response_payment(cielo_data)
         '''
         Creates a new CieloResponsePayment object
-        '''
 
-        pass
-
-    @classmethod
-    def new_response_payment_from_cielo(CIELO_RESPONSE_COMPLETE)
-        '''
-        Creates a new CieloResponsePayment object from Cielo JSON data
         :param: cielo_data Cielo JSON data
-        :type: cielo_data dict
+        :type: cielo_data dict|None
         '''
 
         pass
 
-    @classmethod
-    def new_request(ORDER_ID, cielo_customer, cielo_payment)
+
+    @staticmethod
+    def new_payments_query_result(cielo_data):
+        '''
+        Creates a new CieloPaymentsQueryResult object
+
+        :param: cielo_data Cielo JSON data
+        :type: cielo_data dict|None
+        '''
+
         pass
 
-    @classmethod
-    def new_response(ORDER_ID, cielo_customer, cielo_payment)
+
+    @staticmethod
+    def new_request(order_id, cielo_customer, cielo_payment)
+        '''
+        Creates a new CieloRequest object
+
+        :param: cielo_data Cielo JSON data
+        :type: cielo_data dict|None
+        '''
         pass
 
-    @classmethod
+
+    @staticmethod
+    def new_response(cielo_data)
+        '''
+        Creates a new CieloResponse object
+
+        :param: cielo_data Cielo JSON data
+        :type: cielo_data dict|None
+        '''
+        pass
+
+
+    @staticmethod
     def new_webservice(merchant_id, merchant_key, sandbox=False)
         pass
 

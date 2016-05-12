@@ -8,4 +8,25 @@
 # LICENSE file in the root directory of this source tree.
 
 class CieloWS(object):
-    pass
+    merchant_id = None
+    merchant_key = None
+    sandbox = False
+
+    def __init__(self, merchant_id, merchant_key, sandbox=False):
+        pass
+
+    def authorize(self, order_id, customer, payment):
+        pass
+
+    def capture(self, payment_id, amount, service_tax_amount):
+        pass
+
+    def cancel(self, payment_id, amount):
+        pass
+
+    def query_payment(self, payment_id):
+        pass
+
+    def query_payments(self, order_id):
+        pass
+

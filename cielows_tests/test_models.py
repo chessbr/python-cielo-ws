@@ -11,24 +11,24 @@ import pytest
 from cielows.models import CieloFactory
 from cielows.constants import CieloPaymentType, CieloCardBrand
 from cielows_tests.fake_data import CIELO_REQUEST_COMPLETE,\
-    CIELO_RESPONSE_COMPLETE
+    CIELO_RESPONSE_COMPLETE, PAYMENTS_QUERY_RESULT
 from cielows.exceptions import ValidationError, RequiredAttributeError
 
 
-def test_cielo_customer_success():
+def test_cielo_customer():
     NAME = "Jorge da Silva"
 
     # @test: create from kwargs
-    cielo_customer = CieloFactory.new_customer(name=NAME)
+    cielo_customer = CieloFactory.new_request_customer(name=NAME)
     assert cielo_customer.name == NAME
-    assert cielo_customer.email == ''
-    assert cielo_customer.birth_date == ''
+    assert cielo_customer.email == None
+    assert cielo_customer.birth_date == None
     assert cielo_customer.address == None
     assert cielo_customer.delivery_address == None
 
 
     # @test: create from json dict
-    cielo_customer = CieloFactory.new_customer_from_cielo(CIELO_REQUEST_COMPLETE)
+    cielo_customer = CieloFactory.new_response_customer(CIELO_REQUEST_COMPLETE)
     assert cielo_customer.name == CIELO_REQUEST_COMPLETE['Customer']['Name']
     assert cielo_customer.email == CIELO_REQUEST_COMPLETE['Customer']['Email']
     assert cielo_customer.birth_date == CIELO_REQUEST_COMPLETE['Customer']['Birthdate']
@@ -62,7 +62,7 @@ def test_cielo_customer_address():
     customer_address = CieloFactory.new_customer_address(street=STREET,
                                                          number=NUMBER,
                                                          complement=COMPLEMENT,
-                                                         zipcode=ZIPCODE,
+                                                         zip_code=ZIPCODE,
                                                          city=CITY,
                                                          state=STATE,
                                                          country=COUNTRY)
@@ -74,18 +74,6 @@ def test_cielo_customer_address():
     assert customer_address.city == CITY
     assert customer_address.state == STATE
     assert customer_address.country == COUNTRY
-
-
-def test_cielo_customer_error():
-    # @test: create from kwargs
-    with pytest.raises(RequiredAttributeError) as excinfo:
-        CieloFactory.new_customer()
-    assert 'name' in excinfo.attributes
-
-    # @test: create from json dict
-    with pytest.raises(RequiredAttributeError) as excinfo:
-        CieloFactory.new_customer_from_cielo({})
-    assert 'name' in excinfo.attributes
 
 
 def test_cielo_credit_card_success():
@@ -106,19 +94,19 @@ def test_cielo_credit_card_success():
     assert cielo_cc.expiration_date == EXPIRATION_DATE
     assert cielo_cc.security_code == SECURITY_CODE
     assert cielo_cc.brand == BRAND
-    assert cielo_cc.card_token == ''
+    assert cielo_cc.card_token == None
     assert cielo_cc.save_card == False
 
 
     # @test: create from json dict
-    cielo_cc = CieloFactory.new_request_credit_card_from_cielo(CIELO_REQUEST_COMPLETE)
+    cielo_cc = CieloFactory.new_request_credit_card(cielo_data=CIELO_REQUEST_COMPLETE)
     assert cielo_cc.card_number == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["CardNumber"]
     assert cielo_cc.holder == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["Holder"]
     assert cielo_cc.expiration_date == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["ExpirationDate"]
     assert cielo_cc.security_code == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["SecurityCode"]
     assert cielo_cc.save_card == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["SaveCard"]
     assert cielo_cc.brand == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["Brand"]
-    assert cielo_cc.card_token == ''
+    assert cielo_cc.card_token == None
 
 
 def test_cielo_request_credit_card_error():
@@ -154,7 +142,7 @@ def test_cielo_request_credit_card_error():
 
     # @test: missing attributes
     with pytest.raises(RequiredAttributeError) as excinfo:
-        CieloFactory.new_request_credit_card_from_cielo({})
+        CieloFactory.new_request_credit_card(cielo_data={})
     assert 'card_number' in excinfo.attributes
     assert 'holder' in excinfo.attributes
     assert 'expiration_date' in excinfo.attributes
@@ -195,19 +183,19 @@ def test_cielo_response_credit_card_success():
     assert cielo_cc.save_card == SAVE_CARD
     assert cielo_cc.card_token == CARD_TOKEN
 
-    cielo_cc = CieloFactory.new_response_credit_card_from_cielo(CIELO_RESPONSE_COMPLETE)
+    cielo_cc = CieloFactory.new_response_credit_card(cielo_data=CIELO_RESPONSE_COMPLETE)
     assert cielo_cc.card_number == CIELO_RESPONSE_COMPLETE["Payment"]["CreditCard"]["CardNumber"]
     assert cielo_cc.holder == CIELO_RESPONSE_COMPLETE["Payment"]["CreditCard"]["Holder"]
     assert cielo_cc.expiration_date == CIELO_RESPONSE_COMPLETE["Payment"]["CreditCard"]["ExpirationDate"]
     assert cielo_cc.brand == CIELO_RESPONSE_COMPLETE["Payment"]["CreditCard"]["Brand"]
     assert cielo_cc.save_card == CIELO_RESPONSE_COMPLETE["Payment"]["CreditCard"]["SaveCard"]
-    assert cielo_cc.security_code == ''
-    assert cielo_cc.card_token == ''
+    assert cielo_cc.security_code == None
+    assert cielo_cc.card_token == None
 
 
 
 def test_cielo_request_payment_success():
-    cielo_cc = CieloFactory.new_request_credit_card_from_cielo(CIELO_REQUEST_COMPLETE)
+    cielo_cc = CieloFactory.new_request_credit_card(cielo_data=CIELO_REQUEST_COMPLETE)
 
     TYPE = CieloPaymentType.CreditCard
     AMOUNT = 332043
@@ -225,13 +213,13 @@ def test_cielo_request_payment_success():
     assert cielo_payment.installments == INSTALLMENTS
     assert cielo_payment.credit_card == cielo_cc
     assert cielo_payment.service_tax_amount == 0
-    assert cielo_payment.interest == ''
+    assert cielo_payment.interest == None
     assert cielo_payment.capture == False
     assert cielo_payment.authenticate == False
-    assert cielo_payment.soft_descriptor == ''
+    assert cielo_payment.soft_descriptor == None
 
 
-    cielo_payment = CieloFactory.new_request_payment_from_cielo(CIELO_REQUEST_COMPLETE)
+    cielo_payment = CieloFactory.new_request_payment(cielo_data=CIELO_REQUEST_COMPLETE)
     assert cielo_payment.payment_type == CIELO_REQUEST_COMPLETE["Payment"]["Type"]
     assert cielo_payment.amount == CIELO_REQUEST_COMPLETE["Payment"]["Amount"]
     assert cielo_payment.provider == CIELO_REQUEST_COMPLETE["Payment"]["Provider"]
@@ -242,10 +230,10 @@ def test_cielo_request_payment_success():
     assert cielo_payment.credit_card.brand == CIELO_RESPONSE_COMPLETE["Payment"]["CreditCard"]["Brand"]
     assert cielo_payment.credit_card.save_card == CIELO_RESPONSE_COMPLETE["Payment"]["CreditCard"]["SaveCard"]
     assert cielo_payment.service_tax_amount == 0
-    assert cielo_payment.interest == ''
+    assert cielo_payment.interest == None
     assert cielo_payment.capture == False
     assert cielo_payment.authenticate == False
-    assert cielo_payment.soft_descriptor == ''
+    assert cielo_payment.soft_descriptor == None
 
 
 def test_cielo_request_payment_error():
@@ -260,7 +248,7 @@ def test_cielo_request_payment_error():
 
 
     with pytest.raises(RequiredAttributeError) as excinfo:
-        CieloFactory.new_request_payment_from_cielo({})
+        CieloFactory.new_request_payment(cielo_data={})
     assert 'payment_type' in excinfo.attributes
     assert 'amount' in excinfo.attributes
     assert 'provider' in excinfo.attributes
@@ -269,7 +257,7 @@ def test_cielo_request_payment_error():
 
 
 
-    cielo_cc = CieloFactory.new_request_credit_card_from_cielo(CIELO_REQUEST_COMPLETE)
+    cielo_cc = CieloFactory.new_request_credit_card(cielo_data=CIELO_REQUEST_COMPLETE)
 
     TYPE = CieloPaymentType.CreditCard
     AMOUNT = 332043
@@ -307,7 +295,7 @@ def test_cielo_request_payment_error():
 
 
 def test_cielo_response_payment_success():
-    cielo_cc = CieloFactory.new_response_credit_card_from_cielo(CIELO_RESPONSE_COMPLETE)
+    cielo_cc = CieloFactory.new_response_credit_card(cielo_data=CIELO_RESPONSE_COMPLETE)
 
     TYPE = CieloPaymentType.CreditCard
     AMOUNT = 332043
@@ -315,35 +303,35 @@ def test_cielo_response_payment_success():
     PROVIDER = 'Jorge Portolo'
 
     cielo_payment = CieloFactory.new_response_payment(payment_type=TYPE,
-                                                        amount=AMOUNT,
-                                                        provider=PROVIDER,
-                                                        installments=INSTALLMENTS,
-                                                        credit_card=cielo_cc)
+                                                      amount=AMOUNT,
+                                                      provider=PROVIDER,
+                                                      installments=INSTALLMENTS,
+                                                      credit_card=cielo_cc)
     assert cielo_payment.payment_type == TYPE
     assert cielo_payment.amount == AMOUNT
     assert cielo_payment.provider == PROVIDER
     assert cielo_payment.installments == INSTALLMENTS
     assert cielo_payment.credit_card == cielo_cc
     assert cielo_payment.service_tax_amount == 0
-    assert cielo_payment.interest == ''
+    assert cielo_payment.interest == None
     assert cielo_payment.capture == False
     assert cielo_payment.authenticate == False
-    assert cielo_payment.soft_descriptor == ''
-    assert cielo_payment.proof_of_sale == ''
-    assert cielo_payment.tid == ''
-    assert cielo_payment.authorization_code == ''
-    assert cielo_payment.payment_id == ''
-    assert cielo_payment.currency == ''
-    assert cielo_payment.country == ''
+    assert cielo_payment.soft_descriptor == None
+    assert cielo_payment.proof_of_sale == None
+    assert cielo_payment.tid == None
+    assert cielo_payment.authorization_code == None
+    assert cielo_payment.payment_id == None
+    assert cielo_payment.currency == None
+    assert cielo_payment.country == None
     assert cielo_payment.extra_data_collection == []
     assert cielo_payment.status == -1
-    assert cielo_payment.return_code == ''
-    assert cielo_payment.return_message == ''
+    assert cielo_payment.return_code == None
+    assert cielo_payment.return_message == None
     assert cielo_payment.links == []
 
 
     # from json dict
-    cielo_payment = CieloFactory.new_response_payment_from_cielo(CIELO_RESPONSE_COMPLETE)
+    cielo_payment = CieloFactory.new_response_payment(cielo_data=CIELO_RESPONSE_COMPLETE)
     assert cielo_payment.payment_type == CIELO_REQUEST_COMPLETE["Payment"]["Type"]
     assert cielo_payment.amount == CIELO_REQUEST_COMPLETE["Payment"]["Amount"]
     assert cielo_payment.provider == CIELO_REQUEST_COMPLETE["Payment"]["Provider"]
@@ -370,73 +358,34 @@ def test_cielo_response_payment_success():
     assert cielo_payment.return_message == CIELO_RESPONSE_COMPLETE["Payment"]["ReturnMessage"]
     assert cielo_payment.links == CIELO_RESPONSE_COMPLETE["Payment"]["Links"]
 
+def test_cielo_payment_query_result():
+    query_result = CieloFactory.new_payments_query_result(cielo_data=PAYMENTS_QUERY_RESULT)
+    
+    payment0 = query_result.payments[0]
+    payment1 = query_result.payments[1]
+
+    assert payment0.payment_id == PAYMENTS_QUERY_RESULT["Payments"][0]["PaymentId"]
+    assert payment0.received_date == PAYMENTS_QUERY_RESULT["Payments"][0]["ReceivedDate"]
+
+    assert payment1.payment_id == PAYMENTS_QUERY_RESULT["Payments"][1]["PaymentId"]
+    assert payment1.received_date == PAYMENTS_QUERY_RESULT["Payments"][1]["ReceivedDate"]
 
 
 def test_cielo_request():
     ORDER_ID = 'DAJD78Y2HEU8EY7HU'
-    cielo_customer = CieloFactory.new_customer_from_cielo(CIELO_REQUEST_COMPLETE)
-    cielo_payment = CieloFactory.new_request_payment_from_cielo(CIELO_REQUEST_COMPLETE)
+    NAME = 'Test 1'
+    cielo_customer = CieloFactory.new_request_customer(name=NAME)
+    cielo_payment = CieloFactory.new_request_payment(cielo_data=CIELO_REQUEST_COMPLETE)
     cielo_request = CieloFactory.new_request(ORDER_ID, cielo_customer, cielo_payment)
 
     assert cielo_request.order_id == ORDER_ID
     assert cielo_request.customer == cielo_customer
     assert cielo_request.paument == cielo_payment
 
-    cielo_request = CieloFactory.new_request_from_cielo(CIELO_REQUEST_COMPLETE)
-    assert cielo_request.order_id == CIELO_REQUEST_COMPLETE['Customer']['MerchantOrderId']
-
-    assert cielo_request.customer.name == CIELO_REQUEST_COMPLETE['Customer']['Name']
-    assert cielo_request.customer.email == CIELO_REQUEST_COMPLETE['Customer']['Email']
-    assert cielo_request.customer.birth_date == CIELO_REQUEST_COMPLETE['Customer']['Birthdate']
-    assert cielo_request.customer.identity == CIELO_REQUEST_COMPLETE['Customer']['Identity']
-    assert cielo_request.customer.identity_type == CIELO_REQUEST_COMPLETE['Customer']['IdentityType']
-
-    assert cielo_request.customer.address.street == CIELO_REQUEST_COMPLETE['Customer']['Address']['Street']
-    assert cielo_request.customer.address.number == CIELO_REQUEST_COMPLETE['Customer']['Address']['Number']
-    assert cielo_request.customer.address.complement == CIELO_REQUEST_COMPLETE['Customer']['Address']['Complement']
-    assert cielo_request.customer.address.zip_code == CIELO_REQUEST_COMPLETE['Customer']['Address']['ZipCode']
-    assert cielo_request.customer.address.city == CIELO_REQUEST_COMPLETE['Customer']['Address']['City']
-    assert cielo_request.customer.address.state == CIELO_REQUEST_COMPLETE['Customer']['Address']['State']
-    assert cielo_request.customer.address.country == CIELO_REQUEST_COMPLETE['Customer']['Address']['Country']
-    assert cielo_request.customer.delivery_address.street == CIELO_REQUEST_COMPLETE['Customer']['DeliveryAddress']['Street']
-    assert cielo_request.customer.delivery_address.number == CIELO_REQUEST_COMPLETE['Customer']['DeliveryAddress']['Number']
-    assert cielo_request.customer.delivery_address.complement == CIELO_REQUEST_COMPLETE['Customer']['DeliveryAddress']['Complement']
-    assert cielo_request.customer.delivery_address.zip_code == CIELO_REQUEST_COMPLETE['Customer']['DeliveryAddress']['ZipCode']
-    assert cielo_request.customer.delivery_address.city == CIELO_REQUEST_COMPLETE['Customer']['DeliveryAddress']['City']
-    assert cielo_request.customer.delivery_address.state == CIELO_REQUEST_COMPLETE['Customer']['DeliveryAddress']['State']
-    assert cielo_request.customer.delivery_address.country == CIELO_REQUEST_COMPLETE['Customer']['DeliveryAddress']['Country']
-
-    assert cielo_request.payment.payment_type == CIELO_REQUEST_COMPLETE["Payment"]["Type"]
-    assert cielo_request.payment.amount == CIELO_REQUEST_COMPLETE["Payment"]["Amount"]
-    assert cielo_request.payment.provider == CIELO_REQUEST_COMPLETE["Payment"]["Provider"]
-    assert cielo_request.payment.installments == CIELO_REQUEST_COMPLETE["Payment"]["Installments"]
-    assert cielo_request.payment.credit_card.card_number == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["CardNumber"]
-    assert cielo_request.payment.credit_card.holder == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["Holder"]
-    assert cielo_request.payment.credit_card.expiration_date == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["ExpirationDate"]
-    assert cielo_request.payment.credit_card.brand == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["Brand"]
-    assert cielo_request.payment.credit_card.save_card == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["SaveCard"]
-    assert cielo_request.payment.service_tax_amount == CIELO_REQUEST_COMPLETE["Payment"]["ServiceTaxAmount"]
-    assert cielo_request.payment.interest == CIELO_REQUEST_COMPLETE["Payment"]["Interest"]
-    assert cielo_request.payment.capture == CIELO_REQUEST_COMPLETE["Payment"]["Capture"]
-    assert cielo_request.payment.authenticate == CIELO_REQUEST_COMPLETE["Payment"]["Authenticate"]
-    assert cielo_request.payment.soft_descriptor == ''
-    assert cielo_request.payment.proof_of_sale == ''
-    assert cielo_request.payment.tid == ''
-    assert cielo_request.payment.authorization_code == ''
-    assert cielo_request.payment.payment_id == ''
-    assert cielo_request.payment.currency == CIELO_REQUEST_COMPLETE["Payment"]["Currency"]
-    assert cielo_request.payment.country == CIELO_REQUEST_COMPLETE["Payment"]["Country"]
-    assert cielo_request.payment.extra_data_collection == []
-    assert cielo_request.payment.payment.status == -1
-    assert cielo_request.payment.return_code == ''
-    assert cielo_request.payment.return_message == ''
-    assert cielo_request.payment.links == []
-
-
 def test_cielo_response():
     ORDER_ID = 'DAJD78Y2HEU8EY7HU'
-    cielo_customer = CieloFactory.new_customer_from_cielo(CIELO_RESPONSE_COMPLETE)
-    cielo_payment = CieloFactory.new_response_payment_from_cielo(CIELO_RESPONSE_COMPLETE)
+    cielo_customer = CieloFactory.new_response_customer(cielo_data=CIELO_RESPONSE_COMPLETE)
+    cielo_payment = CieloFactory.new_response_payment(cielo_data=CIELO_RESPONSE_COMPLETE)
     cielo_response = CieloFactory.new_response(ORDER_ID, cielo_customer, cielo_payment)
 
     assert cielo_response.order_id == ORDER_ID
@@ -444,7 +393,7 @@ def test_cielo_response():
     assert cielo_response.paument == cielo_payment
 
 
-    cielo_response = CieloFactory.new_response_from_cielo(CIELO_RESPONSE_COMPLETE)
+    cielo_response = CieloFactory.new_response(cielo_data=CIELO_RESPONSE_COMPLETE)
 
     assert cielo_response.order_id == CIELO_RESPONSE_COMPLETE['Customer']['MerchantOrderId']
     assert cielo_response.customer.name == CIELO_RESPONSE_COMPLETE['Customer']['Name']

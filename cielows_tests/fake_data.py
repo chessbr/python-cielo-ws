@@ -121,3 +121,17 @@ CIELO_RESPONSE_COMPLETE = {
         ]
     }
 }
+
+
+PAYMENTS_QUERY_RESULT = {
+    "Payments": [
+        {
+            "PaymentId": "5fb4d606-bb63-4423-a683-c966e15399e8",
+            "ReceveidDate": "2015-04-06T10:13:39.42"
+        },
+        {
+            "PaymentId": "6c1d45c3-a95f-49c1-a626-1e9373feecc2",
+            "ReceveidDate": "2014-12-19T20:23:28.847"
+        }
+    ]
+}

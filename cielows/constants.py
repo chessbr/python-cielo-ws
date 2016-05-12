@@ -49,7 +49,7 @@ class CieloPaymentStatus(object):
     Scheduled = 20
 
 
-class CieloPaymentCurrency(object):
+class CieloCurrency(object):
     BRL = "BRL"
     USD = "USD"
     MXN = "MXN"

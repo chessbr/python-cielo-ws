@@ -58,3 +58,11 @@ def test_authorize_simple_transaction_success():
                                             amount=321312)
     assert cielo_cancel_response.status == CieloPaymentStatus.Voided
 
+    # consulta
+    query_response = cielo_ws.fetch_payment(payment_id=cielo_auth_response.payment.payment_id)
+    assert query_response.order_id == "HDYQWD78218J131D"
+
+    # consulta vendas
+    sales_response = cielo_ws.fetch_payments(order_id="HDYQWD78218J131D")
+    assert len(sale_response.payments) == 1
+
