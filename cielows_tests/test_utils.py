@@ -8,7 +8,6 @@
 # This source code is licensed under the AGPLv3 license found in the
 # LICENSE file in the root directory of this source tree.
 
-import pytest
 from cielows.utils import validate_cc
 
 def test_validate_cc():

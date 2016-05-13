@@ -15,5 +15,5 @@ def validate_cc(credit_card):
     :rtype: bool
     '''
 
-    return False
+    return True
 

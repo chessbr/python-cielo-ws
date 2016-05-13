@@ -8,6 +8,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import pytest
+
 from cielows.models import CieloFactory
 from cielows.constants import CieloPaymentType, CieloCardBrand
 from cielows_tests.fake_data import CIELO_REQUEST_COMPLETE,\
@@ -99,7 +100,7 @@ def test_cielo_credit_card_success():
 
 
     # @test: create from json dict
-    cielo_cc = CieloFactory.new_request_credit_card(cielo_data=CIELO_REQUEST_COMPLETE)
+    cielo_cc = CieloFactory.new_response_credit_card(cielo_data=CIELO_REQUEST_COMPLETE)
     assert cielo_cc.card_number == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["CardNumber"]
     assert cielo_cc.holder == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["Holder"]
     assert cielo_cc.expiration_date == CIELO_REQUEST_COMPLETE["Payment"]["CreditCard"]["ExpirationDate"]
@@ -120,20 +121,20 @@ def test_cielo_request_credit_card_error():
     with pytest.raises(ValidationError) as excinfo:
         # @test: invalid credit card
         CieloFactory.new_request_credit_card(card_number='21321321',
-                                                holder=HOLDER,
-                                                expiration_date=EXPIRATION_DATE,
-                                                security_code=SECURITY_CODE,
-                                                brand=BRAND)
-    assert 'invalid card number' in excinfo.value
+                                             holder=HOLDER,
+                                             expiration_date=EXPIRATION_DATE,
+                                             security_code=SECURITY_CODE,
+                                             brand=BRAND)
+    assert 'invalid card number' in str(excinfo.value)
 
 
     # @test: missing attributes
     with pytest.raises(RequiredAttributeError) as excinfo:
         CieloFactory.new_request_credit_card(card_number=CARD_NUMBER,
-                                                holder=HOLDER,
-                                                expiration_date=EXPIRATION_DATE,
-                                                security_code=SECURITY_CODE,
-                                                brand=BRAND)
+                                             holder=HOLDER,
+                                             expiration_date=EXPIRATION_DATE,
+                                             security_code=SECURITY_CODE,
+                                             brand=BRAND)
     assert 'holder' in excinfo.attributes
     assert 'expiration_date' in excinfo.attributes
     assert 'security_code' in excinfo.attributes
@@ -156,7 +157,7 @@ def test_cielo_request_credit_card_error():
                                              expiration_date='3231/11',
                                              security_code=SECURITY_CODE,
                                              brand=BRAND)
-    assert 'invalid expiration date' in excinfo.value
+    assert 'invalid expiration date' in str(excinfo.value)
 
 def test_cielo_response_credit_card_success():
     CARD_NUMBER = '4916663711012443'
@@ -167,14 +168,13 @@ def test_cielo_response_credit_card_success():
     SAVE_CARD = True
     CARD_TOKEN = '6e1bf77a-b28b-4660-b14f-455e2a1c95e9'
 
-
-    cielo_cc = CieloFactory.new_response_credit_card(card_number='21321****321',
-                                                     holder=HOLDER,
-                                                     expiration_date=EXPIRATION_DATE,
-                                                     security_code=SECURITY_CODE,
-                                                     brand=BRAND,
-                                                     save_card=SAVE_CARD,
-                                                     card_token=CARD_TOKEN)
+    cielo_cc = CieloFactory.new_request_credit_card(CARD_NUMBER,
+                                                    holder=HOLDER,
+                                                    expiration_date=EXPIRATION_DATE,
+                                                    security_code=SECURITY_CODE,
+                                                    brand=BRAND,
+                                                    save_card=SAVE_CARD,
+                                                    card_token=CARD_TOKEN)
     assert cielo_cc.card_number == CARD_NUMBER
     assert cielo_cc.holder == HOLDER
     assert cielo_cc.expiration_date == EXPIRATION_DATE
@@ -195,7 +195,7 @@ def test_cielo_response_credit_card_success():
 
 
 def test_cielo_request_payment_success():
-    cielo_cc = CieloFactory.new_request_credit_card(cielo_data=CIELO_REQUEST_COMPLETE)
+    cielo_cc = CieloFactory.new_response_credit_card(cielo_data=CIELO_REQUEST_COMPLETE)
 
     TYPE = CieloPaymentType.CreditCard
     AMOUNT = 332043
@@ -271,7 +271,7 @@ def test_cielo_request_payment_error():
                                             provider=PROVIDER,
                                             installments=INSTALLMENTS,
                                             credit_card=cielo_cc)
-    assert 'amount is not int' in excinfo.value
+    assert 'amount is not int' in str(excinfo.value)
 
 
     # type is not valid
@@ -281,17 +281,17 @@ def test_cielo_request_payment_error():
                                             provider=PROVIDER,
                                             installments=INSTALLMENTS,
                                             credit_card=cielo_cc)
-    assert 'invalid payment type' in excinfo.value
+    assert 'invalid payment type' in str(excinfo.value)
 
 
     # type is not valid
-    with pytest.raises(TypeError) as excinfo:
+    with pytest.raises(ValidationError) as excinfo:
         CieloFactory.new_request_payment(payment_type=TYPE,
                                             amount=AMOUNT,
                                             provider=PROVIDER,
                                             installments=INSTALLMENTS,
                                             credit_card=0)
-    assert 'invalid credit card object' in excinfo.value
+    assert 'invalid credit card object' in str(excinfo.value)
 
 
 def test_cielo_response_payment_success():
@@ -360,7 +360,7 @@ def test_cielo_response_payment_success():
 
 def test_cielo_payment_query_result():
     query_result = CieloFactory.new_payments_query_result(cielo_data=PAYMENTS_QUERY_RESULT)
-    
+
     payment0 = query_result.payments[0]
     payment1 = query_result.payments[1]
 

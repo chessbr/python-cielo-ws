@@ -16,29 +16,31 @@ from cielows.constants import CieloCardBrand, CieloPaymentType,\
 def test_authorize_simple_transaction_success():
 
     '''
-    Simple transaction authorization success
+    Simple transaction authorization with success
     '''
 
-    cielo_ws = CieloFactory.create_webservice(merchant_id='1234',
-                                              merchant_key='4567',
-                                              sandbox=True)
+    ORDER_ID = '391321U3H12'
 
-    cielo_customer = CieloFactory.create_customer(name="Jorge da Silva")
+    cielo_ws = CieloFactory.new_webservice(merchant_id='1234',
+                                           merchant_key='4567',
+                                           sandbox=True)
 
-    cielo_cc = CieloFactory.create_request_credit_card(card_number='4916663711012443',
-                                                       holder='Jose da silva',
-                                                       expiration_date='13/2001',
-                                                       security_code='213',
-                                                       brand=CieloCardBrand.Visa)
+    cielo_customer = CieloFactory.new_request_customer(name="Jorge da Silva")
 
-    cielo_payment = CieloFactory.create_request_payment(type=CieloPaymentType.CreditCard,
-                                                        amount=32240,
-                                                        provider='Silumado',
-                                                        installments=2,
-                                                        credit_card=cielo_cc)
+    cielo_cc = CieloFactory.new_request_credit_card(card_number='4916663711012443',
+                                                    holder='Jose da silva',
+                                                    expiration_date='13/2001',
+                                                    security_code='213',
+                                                    brand=CieloCardBrand.Visa)
+
+    cielo_payment = CieloFactory.new_request_payment(type=CieloPaymentType.CreditCard,
+                                                     amount=32240,
+                                                     provider='Simulado',
+                                                     installments=2,
+                                                     credit_card=cielo_cc)
 
     # autoriza
-    cielo_auth_response = cielo_ws.authorize(order_id="HDYQWD78218J131D",
+    cielo_auth_response = cielo_ws.authorize(order_id=ORDER_ID,
                                              customer=cielo_customer,
                                              payment=cielo_payment)
 
@@ -60,9 +62,9 @@ def test_authorize_simple_transaction_success():
 
     # consulta
     query_response = cielo_ws.fetch_payment(payment_id=cielo_auth_response.payment.payment_id)
-    assert query_response.order_id == "HDYQWD78218J131D"
+    assert query_response.order_id == ORDER_ID
 
     # consulta vendas
-    sales_response = cielo_ws.fetch_payments(order_id="HDYQWD78218J131D")
-    assert len(sale_response.payments) == 1
+    payments_response = cielo_ws.fetch_payments(order_id=ORDER_ID)
+    assert len(payments_response.payments) == 1
 
